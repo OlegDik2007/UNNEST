@@ -3,3 +3,22 @@ SELECT creation_time,
        product_ids,
        unnest(product_ids) as product_id
 FROM   orders limit 100
+
+***********************************
+
+
+with t1 as (
+        select unnest(product_ids) as product_id from orders
+        where order_id not in (select order_id from user_actions
+        where action = 'cancel_order')), 
+            
+            t2 as (select product_id, count(product_id) as times_purchased
+            from t1
+            group by product_id
+            order by times_purchased desc
+            limit 10)
+            
+select  product_id, times_purchased
+from t2
+
+order by product_id;
