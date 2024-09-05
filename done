@@ -22,3 +22,19 @@ select  product_id, times_purchased
 from t2
 
 order by product_id;
+
+**************************************
+
+with t as (SELECT unnest(product_ids) as product_id
+           FROM   orders
+           WHERE  order_id not in (SELECT order_id
+                                   FROM   user_actions
+                                   WHERE  action = 'cancel_order')), t2 as (SELECT product_id,
+                                                count(product_id) as times_purchased
+                                         FROM   t
+                                         GROUP BY product_id
+                                         ORDER BY times_purchased desc limit 10)
+SELECT product_id,
+       times_purchased
+FROM   t2
+ORDER BY product_id;
